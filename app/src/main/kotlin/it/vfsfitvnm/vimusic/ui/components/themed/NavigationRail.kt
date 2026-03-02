@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
@@ -40,6 +42,7 @@ import it.vfsfitvnm.vimusic.utils.center
 import it.vfsfitvnm.vimusic.utils.color
 import it.vfsfitvnm.vimusic.utils.isLandscape
 import it.vfsfitvnm.vimusic.utils.semiBold
+import it.vfsfitvnm.vimusic.ui.styling.PKMusicGradientColors
 
 import androidx.compose.foundation.border
 
@@ -104,14 +107,14 @@ inline fun NavigationRail(
                 }
 
                 val textColor by transition.animateColor(label = "") {
-                    if (it == index) colorPalette.text else colorPalette.textDisabled
+                    if (it == index) Color.White else colorPalette.textDisabled
                 }
 
                 val iconContent: @Composable () -> Unit = {
                     Image(
                         painter = painterResource(icon),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(colorPalette.text),
+                        colorFilter = ColorFilter.tint(textColor),
                         modifier = Modifier
                             .vertical(enabled = !isLandscape)
                             .graphicsLayer {
@@ -137,6 +140,15 @@ inline fun NavigationRail(
                 val contentModifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
                     .clickable(onClick = { onTabIndexChanged(index) })
+                    .let {
+                        if (dothAlpha > 0f) {
+                            it.background(
+                                Brush.horizontalGradient(
+                                    colors = PKMusicGradientColors.map { color -> color.copy(alpha = dothAlpha) }
+                                )
+                            )
+                        } else it
+                    }
 
                 if (isLandscape) {
                     Column(

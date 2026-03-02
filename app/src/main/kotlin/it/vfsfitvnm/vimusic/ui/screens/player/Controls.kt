@@ -43,7 +43,10 @@ import it.vfsfitvnm.vimusic.query
 import it.vfsfitvnm.vimusic.ui.components.SeekBar
 import it.vfsfitvnm.vimusic.ui.components.themed.IconButton
 import it.vfsfitvnm.vimusic.ui.styling.LocalAppearance
+import it.vfsfitvnm.vimusic.ui.styling.PKMusicGradientColors
 import it.vfsfitvnm.vimusic.ui.styling.favoritesIcon
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import it.vfsfitvnm.vimusic.utils.bold
 import it.vfsfitvnm.vimusic.utils.forceSeekToNext
 import it.vfsfitvnm.vimusic.utils.forceSeekToPrevious
@@ -139,7 +142,7 @@ fun Controls(
                 scrubbingPosition?.let(binder.player::seekTo)
                 scrubbingPosition = null
             },
-            color = colorPalette.text,
+            color = colorPalette.accent,
             backgroundColor = colorPalette.background2,
             shape = RoundedCornerShape(8.dp)
         )
@@ -233,16 +236,16 @@ fun Controls(
                             binder.player.play()
                         }
                     }
-                    .background(colorPalette.background2)
-                    .size(64.dp)
+                    .background(Brush.horizontalGradient(PKMusicGradientColors))
+                    .size(80.dp) // Make play button much larger and prominent
             ) {
                 Image(
                     painter = painterResource(if (shouldBePlaying) R.drawable.pause else R.drawable.play),
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(colorPalette.text),
+                    colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(28.dp)
+                        .size(36.dp)
                 )
             }
 

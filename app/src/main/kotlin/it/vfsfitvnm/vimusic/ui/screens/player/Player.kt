@@ -60,8 +60,9 @@ import it.vfsfitvnm.vimusic.ui.components.themed.BaseMediaItemMenu
 import it.vfsfitvnm.vimusic.ui.components.themed.IconButton
 import it.vfsfitvnm.vimusic.ui.styling.Dimensions
 import it.vfsfitvnm.vimusic.ui.styling.LocalAppearance
-import it.vfsfitvnm.vimusic.ui.styling.collapsedPlayerProgressBar
+import it.vfsfitvnm.vimusic.ui.styling.PKMusicGradientColors
 import it.vfsfitvnm.vimusic.ui.styling.px
+import androidx.compose.ui.graphics.Brush
 import it.vfsfitvnm.vimusic.utils.DisposableListener
 import it.vfsfitvnm.vimusic.utils.forceSeekToNext
 import it.vfsfitvnm.vimusic.utils.isLandscape
@@ -136,7 +137,7 @@ fun Player(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
-                    .background(colorPalette.background1.copy(alpha = 0.7f))
+                    .background(colorPalette.background0)
                     .border(0.5.dp, colorPalette.textDisabled.copy(alpha = 0.2f))
                     .fillMaxSize()
                     .padding(horizontalBottomPaddingValues)
@@ -145,7 +146,7 @@ fun Player(
                             positionAndDuration.first.toFloat() / positionAndDuration.second.absoluteValue
 
                         drawLine(
-                            color = colorPalette.collapsedPlayerProgressBar,
+                            brush = Brush.horizontalGradient(PKMusicGradientColors),
                             start = Offset(x = 0f, y = 1.dp.toPx()),
                             end = Offset(x = size.width * progress, y = 1.dp.toPx()),
                             strokeWidth = 2.dp.toPx()

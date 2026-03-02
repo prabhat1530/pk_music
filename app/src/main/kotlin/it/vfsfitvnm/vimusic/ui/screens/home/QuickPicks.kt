@@ -35,9 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import java.util.Calendar
 import it.vfsfitvnm.compose.persist.persist
 import it.vfsfitvnm.innertube.Innertube
 import it.vfsfitvnm.innertube.models.NavigationEndpoint
@@ -65,6 +71,7 @@ import it.vfsfitvnm.vimusic.ui.items.SongItem
 import it.vfsfitvnm.vimusic.ui.items.SongItemPlaceholder
 import it.vfsfitvnm.vimusic.ui.styling.Dimensions
 import it.vfsfitvnm.vimusic.ui.styling.LocalAppearance
+import it.vfsfitvnm.vimusic.ui.styling.PKMusicGradientColors
 import it.vfsfitvnm.vimusic.ui.styling.px
 import it.vfsfitvnm.vimusic.utils.SnapLayoutInfoProvider
 import it.vfsfitvnm.vimusic.utils.asMediaItem
@@ -151,12 +158,39 @@ fun QuickPicks(
                         .asPaddingValues()
                 )
         ) {
-            Header(
-                title = "Quick picks",
-                modifier = Modifier
-                    .padding(endPaddingValues)
-            )
+            val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+            val greeting = when {
+                currentHour < 12 -> "Good Morning"
+                currentHour < 18 -> "Good Afternoon"
+                else -> "Good Evening"
+            }
 
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp, bottom = 24.dp)
+                    .padding(endPaddingValues)
+            ) {
+                BasicText(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("$greeting, ")
+                        }
+                        withStyle(style = SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = colorPalette.accent
+                        )) {
+                            append("Music Lover!")
+                        }
+                    },
+                    style = typography.xxl
+                )
+                BasicText(
+                    text = "Let's play some music \uD83C\uDFB5",
+                    style = typography.s.secondary,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
             relatedPageResult?.getOrNull()?.let { related ->
                 LazyHorizontalGrid(
                     state = quickPicksLazyGridState,
