@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +68,21 @@ fun Thumbnail(
 
     var error by remember {
         mutableStateOf<PlaybackException?>(player.playerError)
+    }
+
+    var displayedError by remember {
+        mutableStateOf<PlaybackException?>(null)
+    }
+
+    LaunchedEffect(error) {
+        if (error == null) {
+            displayedError = null
+        } else {
+            kotlinx.coroutines.delay(3000)
+            if (player.playerError != null) {
+                displayedError = error
+            }
+        }
     }
 
     player.DisposableListener {
@@ -155,9 +171,9 @@ fun Thumbnail(
             )
 
             PlaybackError(
-                isDisplayed = error != null,
+                isDisplayed = displayedError != null,
                 messageProvider = {
-                    when (error?.cause?.cause) {
+                    when (displayedError?.cause?.cause) {
                         is UnresolvedAddressException, is UnknownHostException -> "A network error has occurred"
                         is PlayableFormatNotFoundException -> "Couldn't find a playable audio format"
                         is UnplayableException -> "The original video source of this song has been deleted"

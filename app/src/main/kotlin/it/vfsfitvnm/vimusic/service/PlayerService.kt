@@ -565,7 +565,21 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
             else -> PlaybackState.STATE_NONE
         }
 
+    private var playerRetryCount = 0
+
+    override fun onPlayerError(error: PlaybackException) {
+        super.onPlayerError(error)
+        if (playerRetryCount < 3) {
+            playerRetryCount++
+            player.prepare()
+            player.play()
+        }
+    }
+
     override fun onEvents(player: Player, events: Player.Events) {
+        if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED) && player.playbackState == Player.STATE_READY) {
+            playerRetryCount = 0
+        }
         if (player.duration != C.TIME_UNSET) {
             mediaSession.setMetadata(
                 metadataBuilder
