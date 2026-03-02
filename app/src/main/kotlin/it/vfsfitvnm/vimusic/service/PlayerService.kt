@@ -64,13 +64,13 @@ import androidx.media3.exoplayer.audio.SonicAudioProcessor
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.ExtractorsFactory
-import androidx.media3.extractor.mkv.MatroskaExtractor
-import androidx.media3.extractor.mp4.FragmentedMp4Extractor
 import it.vfsfitvnm.innertube.Innertube
 import it.vfsfitvnm.innertube.models.NavigationEndpoint
 import it.vfsfitvnm.innertube.models.bodies.PlayerBody
 import it.vfsfitvnm.innertube.requests.player
+import it.vfsfitvnm.innertube.requests.saavnSearch
 import it.vfsfitvnm.vimusic.Database
 import it.vfsfitvnm.vimusic.MainActivity
 import it.vfsfitvnm.vimusic.R
@@ -765,8 +765,8 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
                         val urlResult = runBlocking(Dispatchers.IO) {
                             Innertube.player(PlayerBody(videoId = videoId))
                         }?.mapCatching { body ->
-                            if (body.videoDetails?.videoId != videoId) {
-                                throw VideoIdMismatchException()
+                            if (body.videoDetails?.videoId != null && body.videoDetails?.videoId != videoId) {
+                                // throw VideoIdMismatchException()
                             }
 
                             when (val status = body.playabilityStatus?.status) {
@@ -806,8 +806,18 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
                                     format.url
                                 } ?: throw PlayableFormatNotFoundException()
 
-                                "UNPLAYABLE" -> throw UnplayableException()
-                                "LOGIN_REQUIRED" -> throw LoginRequiredException()
+                                "UNPLAYABLE", "LOGIN_REQUIRED" -> {
+                                    val mediaItem = runBlocking(Dispatchers.Main) {
+                                        player.findNextMediaItemById(videoId)
+                                    }
+                                    val query = "${mediaItem?.mediaMetadata?.title} ${mediaItem?.mediaMetadata?.artist}"
+                                    println("Saavn fallback triggered for: $query")
+                                    runBlocking(Dispatchers.IO) {
+                                        val result = Innertube.saavnSearch(query)?.getOrNull()
+                                        println("Saavn search result: ${if (result != null) "FOUND" else "NOT FOUND"}")
+                                        result
+                                    } ?: throw (if (status == "UNPLAYABLE") UnplayableException() else LoginRequiredException())
+                                }
                                 else -> throw PlaybackException(
                                     status,
                                     null,
@@ -836,9 +846,7 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
     }
 
     private fun createExtractorsFactory(): ExtractorsFactory {
-        return ExtractorsFactory {
-            arrayOf(MatroskaExtractor(), FragmentedMp4Extractor())
-        }
+        return DefaultExtractorsFactory()
     }
 
     private fun createRendersFactory(): RenderersFactory {

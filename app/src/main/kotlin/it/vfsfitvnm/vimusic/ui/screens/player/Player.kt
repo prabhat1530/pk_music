@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -126,7 +127,6 @@ fun Player(
 
     BottomSheet(
         state = layoutState,
-        modifier = modifier,
         onDismiss = {
             binder.stopRadio()
             binder.player.clearMediaItems()
@@ -136,7 +136,8 @@ fun Player(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
-                    .background(colorPalette.background1)
+                    .background(colorPalette.background1.copy(alpha = 0.7f))
+                    .border(0.5.dp, colorPalette.textDisabled.copy(alpha = 0.2f))
                     .fillMaxSize()
                     .padding(horizontalBottomPaddingValues)
                     .drawBehind {

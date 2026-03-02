@@ -94,8 +94,21 @@ fun colorPaletteOf(
             }
         }
         ColorPaletteName.PureBlack -> PureBlackColorPalette
+        ColorPaletteName.PKMusic -> PKMusicColorPalette
     }
 }
+
+val PKMusicColorPalette = ColorPalette(
+    background0 = Color(0xff0d0e14),
+    background1 = Color(0xff161721),
+    background2 = Color(0xff1f2130),
+    text = Color(0xfff5f5f7),
+    textSecondary = Color(0xffa1a1aa),
+    textDisabled = Color(0xff52525b),
+    accent = Color(0xff8b5cf6), // Vibrant Violet
+    onAccent = Color.White,
+    isDark = true
+)
 
 fun dynamicColorPaletteOf(bitmap: Bitmap, isDark: Boolean): ColorPalette? {
     val palette = Palette

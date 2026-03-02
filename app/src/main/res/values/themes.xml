@@ -1,18 +1,16 @@
 <resources>
-    <style name="Theme.ViMusic" parent="@android:style/Theme.Holo.NoActionBar">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowMinWidthMinor">100%</item>
-        <item name="android:windowMinWidthMajor">100%</item>
-        <item name="android:windowNoTitle">true</item>
+    <style name="Theme.PKMusic" parent="@android:style/Theme.Holo.NoActionBar">
         <item name="android:windowBackground">#ffffff</item>
-        <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
-
-    <style name="Theme.ViMusic.NoActionBar" parent="Theme.ViMusic">
+    <style name="Theme.PKMusic.NoActionBar" parent="Theme.PKMusic">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>

@@ -3,6 +3,7 @@ package it.vfsfitvnm.vimusic.ui.components.themed
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,8 @@ import it.vfsfitvnm.vimusic.utils.color
 import it.vfsfitvnm.vimusic.utils.isLandscape
 import it.vfsfitvnm.vimusic.utils.semiBold
 
+import androidx.compose.foundation.border
+
 @Composable
 inline fun NavigationRail(
     topIconButtonId: Int,
@@ -59,6 +62,8 @@ inline fun NavigationRail(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
+            .background(colorPalette.background1.copy(alpha = 0.7f))
+            .border(0.5.dp, colorPalette.textDisabled.copy(alpha = 0.2f))
             .verticalScroll(rememberScrollState())
             .padding(paddingValues)
     ) {

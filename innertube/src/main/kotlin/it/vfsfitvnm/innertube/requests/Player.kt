@@ -22,17 +22,6 @@ suspend fun Innertube.player(body: PlayerBody) = runCatchingNonCancellable {
     if (response.playabilityStatus?.status == "OK") {
         response
     } else {
-        @Serializable
-        data class AudioStream(
-            val url: String,
-            val bitrate: Long
-        )
-
-        @Serializable
-        data class PipedResponse(
-            val audioStreams: List<AudioStream>
-        )
-
         val safePlayerResponse = client.post(player) {
             setBody(
                 body.copy(
@@ -50,18 +39,6 @@ suspend fun Innertube.player(body: PlayerBody) = runCatchingNonCancellable {
             return@runCatchingNonCancellable response
         }
 
-        val audioStreams = client.get("https://watchapi.whatever.social/streams/${body.videoId}") {
-            contentType(ContentType.Application.Json)
-        }.body<PipedResponse>().audioStreams
-
-        safePlayerResponse.copy(
-            streamingData = safePlayerResponse.streamingData?.copy(
-                adaptiveFormats = safePlayerResponse.streamingData.adaptiveFormats?.map { adaptiveFormat ->
-                    adaptiveFormat.copy(
-                        url = audioStreams.find { it.bitrate == adaptiveFormat.bitrate }?.url
-                    )
-                }
-            )
-        )
+        safePlayerResponse
     }
 }
