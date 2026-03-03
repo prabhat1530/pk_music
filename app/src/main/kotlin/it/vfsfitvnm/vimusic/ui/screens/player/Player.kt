@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -42,6 +44,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
@@ -135,49 +139,39 @@ fun Player(
         collapsedContent = {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .background(colorPalette.background0)
-                    .border(0.5.dp, colorPalette.textDisabled.copy(alpha = 0.2f))
-                    .fillMaxSize()
                     .padding(horizontalBottomPaddingValues)
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .clip(RoundedCornerShape(32.dp))
+                    .background(colorPalette.background1)
+                    .fillMaxSize()
                     .drawBehind {
                         val progress =
-                            positionAndDuration.first.toFloat() / positionAndDuration.second.absoluteValue
+                            if (positionAndDuration.second == 0L) 0f else positionAndDuration.first.toFloat() / positionAndDuration.second.absoluteValue
 
                         drawLine(
                             brush = Brush.horizontalGradient(PKMusicGradientColors),
-                            start = Offset(x = 0f, y = 1.dp.toPx()),
-                            end = Offset(x = size.width * progress, y = 1.dp.toPx()),
-                            strokeWidth = 2.dp.toPx()
+                            start = Offset(x = 0f, y = size.height - 1.5f.dp.toPx()),
+                            end = Offset(x = size.width * progress, y = size.height - 1.5f.dp.toPx()),
+                            strokeWidth = 3.dp.toPx()
                         )
                     }
             ) {
-                Spacer(
-                    modifier = Modifier
-                        .width(2.dp)
-                )
+                Spacer(modifier = Modifier.width(4.dp))
 
-                Box(
-                    contentAlignment = Alignment.Center,
+                AsyncImage(
+                    model = mediaItem.mediaMetadata.artworkUri.thumbnail(Dimensions.thumbnails.song.px),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .height(Dimensions.collapsedPlayer)
-                ) {
-                    AsyncImage(
-                        model = mediaItem.mediaMetadata.artworkUri.thumbnail(Dimensions.thumbnails.song.px),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .clip(thumbnailShape)
-                            .size(48.dp)
-                    )
-                }
+                        .clip(RoundedCornerShape(8.dp))
+                        .size(44.dp)
+                )
 
                 Column(
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .height(Dimensions.collapsedPlayer)
-                        .weight(1f)
+                    modifier = Modifier.weight(1f)
                 ) {
                     BasicText(
                         text = mediaItem.mediaMetadata.title?.toString() ?: "",
@@ -193,17 +187,17 @@ fun Player(
                     )
                 }
 
-                Spacer(
-                    modifier = Modifier
-                        .width(2.dp)
-                )
-
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .height(Dimensions.collapsedPlayer)
                 ) {
+                    Image(
+                        painter = painterResource(R.drawable.heart_outline),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(colorPalette.text),
+                        modifier = Modifier.size(24.dp)
+                    )
+
                     IconButton(
                         icon = if (shouldBePlaying) R.drawable.pause else R.drawable.play,
                         color = colorPalette.text,
@@ -218,24 +212,10 @@ fun Player(
                             }
                         },
                         modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .size(20.dp)
-                    )
-
-                    IconButton(
-                        icon = R.drawable.play_skip_forward,
-                        color = colorPalette.text,
-                        onClick = binder.player::forceSeekToNext,
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .size(20.dp)
+                            .padding(end = 12.dp)
+                            .size(24.dp)
                     )
                 }
-
-                Spacer(
-                    modifier = Modifier
-                        .width(2.dp)
-                )
             }
         }
     ) {
@@ -313,8 +293,38 @@ fun Player(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = containerModifier
-                    .padding(top = 54.dp)
+                    .padding(top = 32.dp)
             ) {
+                // Top Bar
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        icon = R.drawable.chevron_down,
+                        color = colorPalette.text,
+                        onClick = { layoutState.collapseSoft() },
+                        modifier = Modifier.size(28.dp)
+                    )
+                    IconButton(
+                        icon = R.drawable.ellipsis_horizontal,
+                        color = colorPalette.text,
+                        onClick = {
+                            menuState.display {
+                                PlayerMenu(
+                                    onDismiss = menuState::hide,
+                                    mediaItem = mediaItem,
+                                    binder = binder
+                                )
+                            }
+                        },
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -341,32 +351,17 @@ fun Player(
             content = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(horizontal = 8.dp)
-                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 ) {
-                    IconButton(
-                        icon = R.drawable.ellipsis_horizontal,
-                        color = colorPalette.text,
-                        onClick = {
-                            menuState.display {
-                                PlayerMenu(
-                                    onDismiss = menuState::hide,
-                                    mediaItem = mediaItem,
-                                    binder = binder
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp, vertical = 8.dp)
-                            .size(20.dp)
-                    )
-
                     Spacer(
                         modifier = Modifier
-                            .width(4.dp)
+                            .width(32.dp)
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(colorPalette.textDisabled.copy(alpha = 0.5f))
                     )
                 }
             },

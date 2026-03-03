@@ -65,8 +65,8 @@ inline fun NavigationRail(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .background(colorPalette.background1.copy(alpha = 0.7f))
-            .border(0.5.dp, colorPalette.textDisabled.copy(alpha = 0.2f))
+            .background(colorPalette.background0)
+            .border(0.5.dp, colorPalette.background1)
             .verticalScroll(rememberScrollState())
             .padding(paddingValues)
     ) {
@@ -107,7 +107,7 @@ inline fun NavigationRail(
                 }
 
                 val textColor by transition.animateColor(label = "") {
-                    if (it == index) Color.White else colorPalette.textDisabled
+                    if (it == index) colorPalette.accent else colorPalette.textDisabled
                 }
 
                 val iconContent: @Composable () -> Unit = {
@@ -118,37 +118,26 @@ inline fun NavigationRail(
                         modifier = Modifier
                             .vertical(enabled = !isLandscape)
                             .graphicsLayer {
-                                alpha = dothAlpha
-                                translationX = (1f - dothAlpha) * -48.dp.toPx()
                                 rotationZ = if (isLandscape) 0f else -90f
                             }
-                            .size(Dimensions.navigationRailIconOffset * 2)
+                            .size(24.dp)
                     )
                 }
 
                 val textContent: @Composable () -> Unit = {
                     BasicText(
                         text = text,
-                        style = typography.xs.semiBold.center.color(textColor),
+                        style = typography.xxs.semiBold.center.color(textColor),
                         modifier = Modifier
                             .vertical(enabled = !isLandscape)
                             .rotate(if (isLandscape) 0f else -90f)
-                            .padding(horizontal = 16.dp)
+                            .padding(end = if (isLandscape) 0.dp else 4.dp)
                     )
                 }
 
                 val contentModifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
                     .clickable(onClick = { onTabIndexChanged(index) })
-                    .let {
-                        if (dothAlpha > 0f) {
-                            it.background(
-                                Brush.horizontalGradient(
-                                    colors = PKMusicGradientColors.map { color -> color.copy(alpha = dothAlpha) }
-                                )
-                            )
-                        } else it
-                    }
 
                 if (isLandscape) {
                     Column(

@@ -137,8 +137,8 @@ fun Thumbnail(
         Box(
             modifier = modifier
                 .aspectRatio(1f)
-                .clip(LocalAppearance.current.thumbnailShape)
-                .size(thumbnailSizeDp)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(32.dp))
+                .fillMaxSize()
         ) {
             AsyncImage(
                 model = currentWindow.mediaItem.mediaMetadata.artworkUri.thumbnail(thumbnailSizePx),

@@ -34,6 +34,7 @@ fun SongItem(
     song: Innertube.SongItem,
     thumbnailSizePx: Int,
     thumbnailSizeDp: Dp,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     SongItem(
@@ -42,6 +43,7 @@ fun SongItem(
         authors = song.authors?.joinToString("") { it.name ?: "" },
         duration = song.durationText,
         thumbnailSizeDp = thumbnailSizeDp,
+        alternative = alternative,
         modifier = modifier,
     )
 }
@@ -51,6 +53,7 @@ fun SongItem(
     song: MediaItem,
     thumbnailSizeDp: Dp,
     thumbnailSizePx: Int,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier,
     onThumbnailContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null
@@ -61,6 +64,7 @@ fun SongItem(
         authors = song.mediaMetadata.artist.toString(),
         duration = song.mediaMetadata.extras?.getString("durationText"),
         thumbnailSizeDp = thumbnailSizeDp,
+        alternative = alternative,
         onThumbnailContent = onThumbnailContent,
         trailingContent = trailingContent,
         modifier = modifier,
@@ -72,6 +76,7 @@ fun SongItem(
     song: Song,
     thumbnailSizePx: Int,
     thumbnailSizeDp: Dp,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier,
     onThumbnailContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null
@@ -82,6 +87,7 @@ fun SongItem(
         authors = song.artistsText,
         duration = song.durationText,
         thumbnailSizeDp = thumbnailSizeDp,
+        alternative = alternative,
         onThumbnailContent = onThumbnailContent,
         trailingContent = trailingContent,
         modifier = modifier,
@@ -95,6 +101,7 @@ fun SongItem(
     authors: String?,
     duration: String?,
     thumbnailSizeDp: Dp,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier,
     onThumbnailContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null
@@ -116,6 +123,7 @@ fun SongItem(
 
             onThumbnailContent?.invoke(this)
         },
+        alternative = alternative,
         modifier = modifier,
         trailingContent = trailingContent
     )
@@ -128,13 +136,14 @@ fun SongItem(
     authors: String?,
     duration: String?,
     thumbnailSizeDp: Dp,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier,
     trailingContent: @Composable (() -> Unit)? = null,
 ) {
     val (_, typography) = LocalAppearance.current
 
     ItemContainer(
-        alternative = false,
+        alternative = alternative,
         thumbnailSizeDp = thumbnailSizeDp,
         modifier = modifier
     ) {
@@ -195,12 +204,13 @@ fun SongItem(
 @Composable
 fun SongItemPlaceholder(
     thumbnailSizeDp: Dp,
+    alternative: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val (colorPalette, _, thumbnailShape) = LocalAppearance.current
 
     ItemContainer(
-        alternative = false,
+        alternative = alternative,
         thumbnailSizeDp =thumbnailSizeDp,
         modifier = modifier
     ) {

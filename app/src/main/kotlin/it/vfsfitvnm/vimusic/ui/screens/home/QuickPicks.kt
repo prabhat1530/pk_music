@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,12 +22,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -35,7 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -77,6 +84,7 @@ import it.vfsfitvnm.vimusic.utils.SnapLayoutInfoProvider
 import it.vfsfitvnm.vimusic.utils.asMediaItem
 import it.vfsfitvnm.vimusic.utils.center
 import it.vfsfitvnm.vimusic.utils.forcePlay
+import it.vfsfitvnm.vimusic.utils.bold
 import it.vfsfitvnm.vimusic.utils.isLandscape
 import it.vfsfitvnm.vimusic.utils.secondary
 import it.vfsfitvnm.vimusic.utils.semiBold
@@ -165,12 +173,77 @@ fun QuickPicks(
                 else -> "Good Evening"
             }
 
+            // --- EXACT UI: Top Bar (Logo, Profile, Bell) ---
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
+                    .padding(endPaddingValues)
+            ) {
+                // Logo & Name
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(R.drawable.sparkles), // Using sparkles as dummy logo icon
+                        contentDescription = "Logo",
+                        colorFilter = ColorFilter.tint(colorPalette.accent),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    BasicText(
+                        text = "MusicHub",
+                        style = typography.l.bold,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                // Profile and Notification
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(colorPalette.background1)) {
+                        // Dummy profile pic placeholder
+                        Image(painterResource(R.drawable.person), null, modifier = Modifier.align(Alignment.Center).size(20.dp), colorFilter = ColorFilter.tint(colorPalette.text))
+                    }
+                    Box(modifier = Modifier.size(24.dp)) {
+                        Image(painterResource(R.drawable.notifications), null, modifier = Modifier.align(Alignment.Center).size(24.dp), colorFilter = ColorFilter.tint(colorPalette.text))
+                        // Red dot (using accent)
+                        Box(modifier = Modifier.align(Alignment.TopEnd).size(8.dp).clip(CircleShape).background(colorPalette.accent))
+                    }
+                }
+            }
+
+            // --- EXACT UI: Search Pill ---
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(endPaddingValues)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(colorPalette.background1)
+                    .clickable(onClick = onSearchClick)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.search),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(colorPalette.textDisabled),
+                    modifier = Modifier.size(20.dp)
+                )
+                BasicText(
+                    text = "Search for songs, artists...",
+                    style = typography.s.secondary,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            // --- EXACT UI: Greeting ---
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = 24.dp)
+                    .padding(top = 24.dp, bottom = 24.dp)
                     .padding(endPaddingValues)
             ) {
+
                 BasicText(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -180,7 +253,10 @@ fun QuickPicks(
                             fontWeight = FontWeight.Bold,
                             color = colorPalette.accent
                         )) {
-                            append("Music Lover!")
+                            append("Prabhat!")
+                        }
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(" \uD83D\uDC4B") // Waving hand emoji
                         }
                     },
                     style = typography.xxl
@@ -192,28 +268,87 @@ fun QuickPicks(
                 )
             }
             relatedPageResult?.getOrNull()?.let { related ->
-                LazyHorizontalGrid(
-                    state = quickPicksLazyGridState,
-                    rows = GridCells.Fixed(4),
-                    flingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider),
-                    contentPadding = endPaddingValues,
+                // --- EXACT UI: Filter Pills ---
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height((songThumbnailSizeDp + Dimensions.itemsVerticalPadding * 2) * 4)
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Brush.horizontalGradient(PKMusicGradientColors))
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(painterResource(R.drawable.musical_notes), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(Color.White))
+                        BasicText("Music", style = typography.s.semiBold.copy(color = Color.White))
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(colorPalette.background1)
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(painterResource(R.drawable.information), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(colorPalette.textDisabled))
+                        BasicText("Podcasts", style = typography.s.semiBold.copy(color = colorPalette.textDisabled))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(colorPalette.background1)
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(painterResource(R.drawable.radio), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(colorPalette.textDisabled))
+                        BasicText("Radio", style = typography.s.semiBold.copy(color = colorPalette.textDisabled))
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp, bottom = 8.dp)
+                        .padding(endPaddingValues),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicText(
+                        text = "Recommended For You",
+                        style = typography.m.semiBold
+                    )
+                }
+
+                val recommendedThumbnailSizeDp = 160.dp
+                val recommendedThumbnailSizePx = recommendedThumbnailSizeDp.px
+
+                LazyRow(
+                    contentPadding = endPaddingValues,
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     trending?.let { song ->
                         item {
                             SongItem(
                                 song = song,
-                                thumbnailSizePx = songThumbnailSizePx,
-                                thumbnailSizeDp = songThumbnailSizeDp,
+                                thumbnailSizePx = recommendedThumbnailSizePx,
+                                thumbnailSizeDp = recommendedThumbnailSizeDp,
+                                alternative = true,
                                 trailingContent = {
                                     Image(
                                         painter = painterResource(R.drawable.star),
                                         contentDescription = null,
                                         colorFilter = ColorFilter.tint(colorPalette.accent),
-                                        modifier = Modifier
-                                            .size(16.dp)
+                                        modifier = Modifier.size(16.dp)
                                     )
                                 },
                                 modifier = Modifier
@@ -241,20 +376,19 @@ fun QuickPicks(
                                         }
                                     )
                                     .animateItemPlacement()
-                                    .width(itemInHorizontalGridWidth)
                             )
                         }
                     }
 
                     items(
-                        items = related.songs?.dropLast(if (trending == null) 0 else 1)
-                            ?: emptyList(),
+                        items = related.songs?.dropLast(if (trending == null) 0 else 1) ?: emptyList(),
                         key = Innertube.SongItem::key
                     ) { song ->
                         SongItem(
                             song = song,
-                            thumbnailSizePx = songThumbnailSizePx,
-                            thumbnailSizeDp = songThumbnailSizeDp,
+                            thumbnailSizePx = recommendedThumbnailSizePx,
+                            thumbnailSizeDp = recommendedThumbnailSizeDp,
+                            alternative = true,
                             modifier = Modifier
                                 .combinedClickable(
                                     onLongClick = {
@@ -275,17 +409,29 @@ fun QuickPicks(
                                     }
                                 )
                                 .animateItemPlacement()
-                                .width(itemInHorizontalGridWidth)
                         )
                     }
                 }
 
                 related.albums?.let { albums ->
-                    BasicText(
-                        text = "Related albums",
-                        style = typography.m.semiBold,
-                        modifier = sectionTextModifier
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 24.dp, bottom = 8.dp)
+                            .padding(endPaddingValues),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BasicText(
+                            text = "Recently Played",
+                            style = typography.m.semiBold
+                        )
+                        BasicText(
+                            text = "See All",
+                            style = typography.xs.semiBold.copy(color = colorPalette.accent)
+                        )
+                    }
 
                     LazyRow(contentPadding = endPaddingValues) {
                         items(
@@ -404,11 +550,5 @@ fun QuickPicks(
                 }
             }
         }
-
-        FloatingActionsContainerWithScrollToTop(
-            scrollState = scrollState,
-            iconId = R.drawable.search,
-            onClick = onSearchClick
-        )
     }
 }
