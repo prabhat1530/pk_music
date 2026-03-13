@@ -132,6 +132,7 @@ fun Player(
 
     BottomSheet(
         state = layoutState,
+        modifier = modifier,
         onDismiss = {
             binder.stopRadio()
             binder.player.clearMediaItems()

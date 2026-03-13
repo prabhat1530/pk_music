@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -166,12 +167,7 @@ fun QuickPicks(
                         .asPaddingValues()
                 )
         ) {
-            val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-            val greeting = when {
-                currentHour < 12 -> "Good Morning"
-                currentHour < 18 -> "Good Afternoon"
-                else -> "Good Evening"
-            }
+
 
             // --- EXACT UI: Top Bar (Logo, Profile, Bell) ---
             Row(
@@ -191,24 +187,13 @@ fun QuickPicks(
                         modifier = Modifier.size(24.dp)
                     )
                     BasicText(
-                        text = "MusicHub",
+                        text = "Prabhatify",
                         style = typography.l.bold,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
 
-                // Profile and Notification
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(colorPalette.background1)) {
-                        // Dummy profile pic placeholder
-                        Image(painterResource(R.drawable.person), null, modifier = Modifier.align(Alignment.Center).size(20.dp), colorFilter = ColorFilter.tint(colorPalette.text))
-                    }
-                    Box(modifier = Modifier.size(24.dp)) {
-                        Image(painterResource(R.drawable.notifications), null, modifier = Modifier.align(Alignment.Center).size(24.dp), colorFilter = ColorFilter.tint(colorPalette.text))
-                        // Red dot (using accent)
-                        Box(modifier = Modifier.align(Alignment.TopEnd).size(8.dp).clip(CircleShape).background(colorPalette.accent))
-                    }
-                }
+                // Removed non-functional Profile and Notification Row
             }
 
             // --- EXACT UI: Search Pill ---
@@ -247,19 +232,19 @@ fun QuickPicks(
                 BasicText(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("$greeting, ")
+                            append("Welcome to ")
                         }
                         withStyle(style = SpanStyle(
                             fontWeight = FontWeight.Bold,
                             color = colorPalette.accent
                         )) {
-                            append("Prabhat!")
+                            append("Prabhat Music")
                         }
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(" \uD83D\uDC4B") // Waving hand emoji
+                            append(" \uD83C\uDFB6") // Musical notes emoji
                         }
                     },
-                    style = typography.xxl
+                    style = typography.l
                 )
                 BasicText(
                     text = "Let's play some music \uD83C\uDFB5",
@@ -268,51 +253,7 @@ fun QuickPicks(
                 )
             }
             relatedPageResult?.getOrNull()?.let { related ->
-                // --- EXACT UI: Filter Pills ---
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(Brush.horizontalGradient(PKMusicGradientColors))
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(painterResource(R.drawable.musical_notes), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(Color.White))
-                        BasicText("Music", style = typography.s.semiBold.copy(color = Color.White))
-                    }
-                    
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(colorPalette.background1)
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(painterResource(R.drawable.information), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(colorPalette.textDisabled))
-                        BasicText("Podcasts", style = typography.s.semiBold.copy(color = colorPalette.textDisabled))
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(colorPalette.background1)
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(painterResource(R.drawable.radio), null, Modifier.size(16.dp), colorFilter = ColorFilter.tint(colorPalette.textDisabled))
-                        BasicText("Radio", style = typography.s.semiBold.copy(color = colorPalette.textDisabled))
-                    }
-                }
+                // Removed non-functional Filter Pills Row
 
                 Row(
                     modifier = Modifier
@@ -333,8 +274,8 @@ fun QuickPicks(
                 val recommendedThumbnailSizePx = recommendedThumbnailSizeDp.px
 
                 LazyRow(
-                    contentPadding = endPaddingValues,
-                    horizontalArrangement = Arrangement.spacedBy(0.dp)
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     trending?.let { song ->
                         item {
@@ -433,7 +374,10 @@ fun QuickPicks(
                         )
                     }
 
-                    LazyRow(contentPadding = endPaddingValues) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         items(
                             items = albums,
                             key = Innertube.AlbumItem::key
@@ -457,7 +401,10 @@ fun QuickPicks(
                         modifier = sectionTextModifier
                     )
 
-                    LazyRow(contentPadding = endPaddingValues) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         items(
                             items = artists,
                             key = Innertube.ArtistItem::key,
@@ -483,7 +430,10 @@ fun QuickPicks(
                             .padding(top = 24.dp, bottom = 8.dp)
                     )
 
-                    LazyRow(contentPadding = endPaddingValues) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         items(
                             items = playlists,
                             key = Innertube.PlaylistItem::key,

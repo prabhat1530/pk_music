@@ -179,6 +179,7 @@ fun Thumbnail(
                         is UnplayableException -> "The original video source of this song has been deleted"
                         is LoginRequiredException -> "This song cannot be played due to server restrictions"
                         is VideoIdMismatchException -> "The returned video id doesn't match the requested one"
+                        is androidx.media3.exoplayer.source.UnrecognizedInputFormatException -> "The audio stream is no longer available or corrupted"
                         else -> "An unknown playback error has occurred"
                     }
                 },

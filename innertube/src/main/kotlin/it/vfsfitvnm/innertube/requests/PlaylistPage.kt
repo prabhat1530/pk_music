@@ -16,14 +16,18 @@ import it.vfsfitvnm.innertube.utils.runCatchingNonCancellable
 suspend fun Innertube.playlistPage(body: BrowseBody) = runCatchingNonCancellable {
     val response = client.post(browse) {
         setBody(body)
-        mask("contents.singleColumnBrowseResultsRenderer.tabs.tabRenderer.content.sectionListRenderer.contents(musicPlaylistShelfRenderer(continuations,contents.$musicResponsiveListItemRendererMask),musicCarouselShelfRenderer.contents.$musicTwoRowItemRendererMask),header.musicDetailHeaderRenderer(title,subtitle,thumbnail),microformat")
+        mask("contents(singleColumnBrowseResultsRenderer.tabs.tabRenderer.content.sectionListRenderer,sectionListRenderer),header,microformat")
     }.body<BrowseResponse>()
 
     val musicDetailHeaderRenderer = response
         .header
         ?.musicDetailHeaderRenderer
 
-    val sectionListRendererContents = response
+    val musicImmersiveHeaderRenderer = response
+        .header
+        ?.musicImmersiveHeaderRenderer
+
+    val sectionListRendererContents = (response
         .contents
         ?.singleColumnBrowseResultsRenderer
         ?.tabs
@@ -31,22 +35,21 @@ suspend fun Innertube.playlistPage(body: BrowseBody) = runCatchingNonCancellable
         ?.tabRenderer
         ?.content
         ?.sectionListRenderer
+        ?: response.contents?.sectionListRenderer)
         ?.contents
 
     val musicShelfRenderer = sectionListRendererContents
+        ?.mapNotNull { it.musicShelfRenderer }
         ?.firstOrNull()
-        ?.musicShelfRenderer
 
     val musicCarouselShelfRenderer = sectionListRendererContents
-        ?.getOrNull(1)
-        ?.musicCarouselShelfRenderer
+        ?.mapNotNull { it.musicCarouselShelfRenderer }
+        ?.firstOrNull()
 
     Innertube.PlaylistOrAlbumPage(
-        title = musicDetailHeaderRenderer
-            ?.title
+        title = (musicDetailHeaderRenderer?.title ?: musicImmersiveHeaderRenderer?.title)
             ?.text,
-        thumbnail = musicDetailHeaderRenderer
-            ?.thumbnail
+        thumbnail = (musicDetailHeaderRenderer?.thumbnail ?: musicImmersiveHeaderRenderer?.thumbnail ?: musicImmersiveHeaderRenderer?.foregroundThumbnail)
             ?.musicThumbnailRenderer
             ?.thumbnail
             ?.thumbnails

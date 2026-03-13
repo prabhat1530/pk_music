@@ -825,9 +825,10 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
                                         player.findNextMediaItemById(videoId)
                                     }
                                     val query = "${mediaItem?.mediaMetadata?.title} ${mediaItem?.mediaMetadata?.artist}"
+                                    val fallbackQuery = mediaItem?.mediaMetadata?.title?.toString()
                                     println("Saavn fallback triggered for: $query")
                                     runBlocking(Dispatchers.IO) {
-                                        val result = Innertube.saavnSearch(query)?.getOrNull()
+                                        val result = Innertube.saavnSearch(query, fallbackQuery)?.getOrNull()
                                         println("Saavn search result: ${if (result != null) "FOUND" else "NOT FOUND"}")
                                         result
                                     } ?: throw (if (status == "UNPLAYABLE") UnplayableException() else LoginRequiredException())

@@ -14,26 +14,39 @@ import it.vfsfitvnm.innertube.utils.runCatchingNonCancellable
 import kotlinx.serialization.Serializable
 
 suspend fun Innertube.player(body: PlayerBody) = runCatchingNonCancellable {
-    val response = client.post(player) {
-        setBody(body)
-        mask("playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId")
-    }.body<PlayerResponse>()
+    val response = try {
+        client.post(player) {
+            setBody(body)
+            mask("playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId")
+        }.body<PlayerResponse>()
+    } catch (e: Exception) {
+        return@runCatchingNonCancellable PlayerResponse(
+            playabilityStatus = PlayerResponse.PlayabilityStatus("LOGIN_REQUIRED"),
+            playerConfig = null,
+            streamingData = null,
+            videoDetails = null
+        )
+    }
 
     if (response.playabilityStatus?.status == "OK") {
         response
     } else {
-        val safePlayerResponse = client.post(player) {
-            setBody(
-                body.copy(
-                    context = Context.DefaultAgeRestrictionBypass.copy(
-                        thirdParty = Context.ThirdParty(
-                            embedUrl = "https://www.youtube.com/watch?v=${body.videoId}"
-                        )
-                    ),
+        val safePlayerResponse = try {
+            client.post(player) {
+                setBody(
+                    body.copy(
+                        context = Context.DefaultAgeRestrictionBypass.copy(
+                            thirdParty = Context.ThirdParty(
+                                embedUrl = "https://www.youtube.com/watch?v=${body.videoId}"
+                            )
+                        ),
+                    )
                 )
-            )
-            mask("playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId")
-        }.body<PlayerResponse>()
+                mask("playabilityStatus.status,playerConfig.audioConfig,streamingData.adaptiveFormats,videoDetails.videoId")
+            }.body<PlayerResponse>()
+        } catch (e: Exception) {
+            return@runCatchingNonCancellable response
+        }
 
         if (safePlayerResponse.playabilityStatus?.status != "OK") {
             return@runCatchingNonCancellable response

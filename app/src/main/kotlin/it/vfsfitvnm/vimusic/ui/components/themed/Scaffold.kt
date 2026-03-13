@@ -13,13 +13,24 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.IntOffset
+import it.vfsfitvnm.vimusic.LocalPlayerAwareWindowInsets
+import it.vfsfitvnm.vimusic.ui.styling.Dimensions
 import it.vfsfitvnm.vimusic.ui.styling.LocalAppearance
 
 @ExperimentalAnimationApi
@@ -29,43 +40,81 @@ fun Scaffold(
     onTopIconButtonClick: () -> Unit,
     tabIndex: Int,
     onTabChanged: (Int) -> Unit,
-    tabColumnContent: @Composable ColumnScope.(@Composable (Int, String, Int) -> Unit) -> Unit,
+    tabColumnContent: @Composable (@Composable (Int, String, Int) -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable AnimatedVisibilityScope.(Int) -> Unit
 ) {
     val (colorPalette) = LocalAppearance.current
+    val isLandscape = it.vfsfitvnm.vimusic.utils.isLandscape
 
-    Row(
-        modifier = modifier
-            .background(Brush.verticalGradient(listOf(colorPalette.background0, colorPalette.background1)))
-            .fillMaxSize()
-    ) {
-        NavigationRail(
-            topIconButtonId = topIconButtonId,
-            onTopIconButtonClick = onTopIconButtonClick,
-            tabIndex = tabIndex,
-            onTabIndexChanged = onTabChanged,
-            content = tabColumnContent
-        )
+    val scaffoldModifier = modifier
+        .background(Brush.verticalGradient(listOf(colorPalette.background0, colorPalette.background1)))
+        .fillMaxSize()
 
-        AnimatedContent(
-            targetState = tabIndex,
-            transitionSpec = {
-                val slideDirection = when (targetState > initialState) {
-                    true -> AnimatedContentScope.SlideDirection.Up
-                    false -> AnimatedContentScope.SlideDirection.Down
-                }
+    if (isLandscape) {
+        Row(modifier = scaffoldModifier) {
+            NavigationRail(
+                topIconButtonId = topIconButtonId,
+                onTopIconButtonClick = onTopIconButtonClick,
+                tabIndex = tabIndex,
+                onTabIndexChanged = onTabChanged,
+                content = tabColumnContent
+            )
 
-                val animationSpec = spring(
-                    dampingRatio = 0.85f,
-                    stiffness = Spring.StiffnessLow,
-                    visibilityThreshold = IntOffset.VisibilityThreshold
+            Box(Modifier.weight(1f)) {
+                AnimatedContent(
+                    targetState = tabIndex,
+                    transitionSpec = {
+                        val slideDirection = when (targetState > initialState) {
+                            true -> AnimatedContentScope.SlideDirection.Up
+                            false -> AnimatedContentScope.SlideDirection.Down
+                        }
+
+                        val animationSpec = spring(
+                            dampingRatio = 0.85f,
+                            stiffness = Spring.StiffnessLow,
+                            visibilityThreshold = IntOffset.VisibilityThreshold
+                        )
+
+                        (slideIntoContainer(slideDirection, animationSpec) + fadeIn() + scaleIn(initialScale = 0.95f)) with
+                                (slideOutOfContainer(slideDirection, animationSpec) + fadeOut() + scaleOut(targetScale = 0.95f))
+                    },
+                    content = content
                 )
+            }
+        }
+    } else {
+        Column(modifier = scaffoldModifier) {
+            Box(Modifier.weight(1f)) {
+                AnimatedContent(
+                    targetState = tabIndex,
+                    transitionSpec = {
+                        val slideDirection = when (targetState > initialState) {
+                            true -> AnimatedContentScope.SlideDirection.Right
+                            false -> AnimatedContentScope.SlideDirection.Left
+                        }
 
-                (slideIntoContainer(slideDirection, animationSpec) + fadeIn() + scaleIn(initialScale = 0.95f)) with
-                        (slideOutOfContainer(slideDirection, animationSpec) + fadeOut() + scaleOut(targetScale = 0.95f))
-            },
-            content = content
-        )
+                        val animationSpec = spring(
+                            dampingRatio = 0.85f,
+                            stiffness = Spring.StiffnessLow,
+                            visibilityThreshold = IntOffset.VisibilityThreshold
+                        )
+
+                        (slideIntoContainer(slideDirection, animationSpec) + fadeIn() + scaleIn(initialScale = 0.95f)) with
+                                (slideOutOfContainer(slideDirection, animationSpec) + fadeOut() + scaleOut(targetScale = 0.95f))
+                    },
+                    content = content
+                )
+            }
+
+            NavigationRail(
+                topIconButtonId = topIconButtonId,
+                onTopIconButtonClick = onTopIconButtonClick,
+                tabIndex = tabIndex,
+                onTabIndexChanged = onTabChanged,
+                content = tabColumnContent,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }

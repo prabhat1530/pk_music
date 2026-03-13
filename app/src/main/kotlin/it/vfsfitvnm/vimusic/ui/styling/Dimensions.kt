@@ -31,6 +31,7 @@ object Dimensions {
     }
 
     val collapsedPlayer = 64.dp
+    val bottomNavigationHeight = 80.dp
 }
 
 inline val Dp.px: Int

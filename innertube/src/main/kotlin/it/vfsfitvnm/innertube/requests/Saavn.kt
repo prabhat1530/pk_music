@@ -38,7 +38,7 @@ data class SaavnSongResponse(
     val data: List<SaavnSong>? = null
 )
 
-suspend fun Innertube.saavnSearch(query: String): Result<String?>? = runCatchingNonCancellable {
+suspend fun Innertube.saavnSearch(query: String, fallbackQuery: String? = null): Result<String?>? = runCatchingNonCancellable {
     val searchResponse = try {
         client.get {
             url("https://jiosaavn-api-privatecvc2.vercel.app/search/songs")
@@ -50,13 +50,12 @@ suspend fun Innertube.saavnSearch(query: String): Result<String?>? = runCatching
 
     var songId = searchResponse?.data?.results?.firstOrNull()?.id
 
-    // Fallback: If title+artist failed, try title only (split by " " and take first part if needed, or just hope title works)
-    if (songId == null && query.contains(" ")) {
-        val titleOnly = query.split(" ").firstOrNull() ?: query
+    // Fallback: If title+artist failed, try fallbackQuery
+    if (songId == null && fallbackQuery != null) {
         val fallbackResponse = try {
             client.get {
                 url("https://jiosaavn-api-privatecvc2.vercel.app/search/songs")
-                parameter("query", titleOnly)
+                parameter("query", fallbackQuery)
             }.body<SaavnSearchResponse>()
         } catch (e: Exception) {
             null

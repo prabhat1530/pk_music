@@ -110,7 +110,7 @@ val PKMusicColorPalette = ColorPalette(
     isDark = true
 )
 
-// MusicHub gradient: Vibrant Purple to Pink
+// Prabhatify gradient: Vibrant Purple to Pink
 val PKMusicGradientColors = listOf(
     Color(0xff8b5cf6), // Violet
     Color(0xffec4899)  // Pink
